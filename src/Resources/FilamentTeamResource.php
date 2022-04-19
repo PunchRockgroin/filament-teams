@@ -42,13 +42,20 @@ class FilamentTeamResource extends Resource
                 ->required(),
             Forms\Components\BelongsToSelect::make("owner_id")
                 ->searchable()
-                ->relationship("owner", "name"),
+                ->relationship("owner", "name")
+                ->default(auth()->user()->id)
+                ->disablePlaceholderSelection(),
             Forms\Components\BelongsToManyMultiSelect::make("users")
                 ->label("Team users")
                 ->helperText(
                     "No invitation emails will be sent by updating this value."
                 )
-                ->relationship("users", "name"),
+                ->relationship("users", "name")
+                ->default(function(){
+                    if (config("filament-teams.sync_owner_as_team_member")){
+                        return [auth()->user()->id];
+                    }
+                }),
         ]);
     }
 
